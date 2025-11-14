@@ -1,0 +1,10 @@
+// Placeholder for reusable components
+// Example components to create:
+// - Button.jsx
+// - Input.jsx
+// - Modal.jsx
+// - Loading.jsx
+// - Navbar.jsx
+// - etc.
+
+export default {}
