@@ -47,6 +47,12 @@ def create_app(config_name=None):
         }
     })
     
+    # Import models to ensure they are registered with SQLAlchemy
+    from models.user import User
+    from models.category import Category
+    from models.product import Product
+    from models.sale import Sale, SaleItem
+
     # Register blueprints (routes)
     from routes.auth_routes import auth_bp
     from routes.inventory_routes import inventory_bp
