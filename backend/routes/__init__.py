@@ -1,7 +1,8 @@
 # Routes package
 # Import all route blueprints here
-# Example:
-# from .auth_routes import auth_bp
+from .auth_routes import auth_bp
+
+# When more routes are created, import them here:
 # from .product_routes import product_bp
 # from .category_routes import category_bp
 

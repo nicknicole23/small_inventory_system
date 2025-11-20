@@ -44,11 +44,15 @@ def create_app(config_name=None):
         }
     })
     
-    # Register blueprints (routes) - to be implemented
-    # from routes.auth_routes import auth_bp
+    # Register blueprints (routes)
+    from routes.auth_routes import auth_bp
+    from routes.inventory_routes import inventory_bp
+    app.register_blueprint(auth_bp, url_prefix='/api/auth')
+    app.register_blueprint(inventory_bp, url_prefix='/api/inventory')
+    
+    # Register more blueprints as they are created
     # from routes.product_routes import product_bp
     # from routes.category_routes import category_bp
-    # app.register_blueprint(auth_bp, url_prefix='/api/auth')
     # app.register_blueprint(product_bp, url_prefix='/api/products')
     # app.register_blueprint(category_bp, url_prefix='/api/categories')
     
