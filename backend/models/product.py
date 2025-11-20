@@ -7,7 +7,12 @@ class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     sku = db.Column(db.String(50), unique=True, nullable=False)
-    category = db.Column(db.String(50), nullable=False)
+    # category is now a foreign key, but we keep the string for backward compatibility or display if needed, 
+    # or we can remove it. Let's keep it simple and just add category_id and make category string optional/computed.
+    # For this phase, I'll replace the string column with a relationship.
+    category_id = db.Column(db.Integer, db.ForeignKey('categories.id'), nullable=True)
+    category = db.relationship('Category', backref='products')
+    
     price = db.Column(db.Float, nullable=False)
     stock = db.Column(db.Integer, default=0)
     low_stock_threshold = db.Column(db.Integer, default=10)
@@ -20,7 +25,8 @@ class Product(db.Model):
             'id': self.id,
             'name': self.name,
             'sku': self.sku,
-            'category': self.category,
+            'category': self.category.name if self.category else "Uncategorized",
+            'category_id': self.category_id,
             'price': self.price,
             'stock': self.stock,
             'status': self.get_status(),

@@ -19,10 +19,13 @@ def add_product():
     data = request.get_json()
     
     try:
+        # Handle category_id if provided, or look up category by name if string provided (optional)
+        category_id = data.get('category_id')
+        
         new_product = Product(
             name=data['name'],
             sku=data['sku'],
-            category=data['category'],
+            category_id=category_id,
             price=float(data['price']),
             stock=int(data['stock']),
             description=data.get('description', '')
@@ -49,7 +52,9 @@ def update_product(id):
     try:
         product.name = data.get('name', product.name)
         product.sku = data.get('sku', product.sku)
-        product.category = data.get('category', product.category)
+        if 'category_id' in data:
+            product.category_id = data['category_id']
+            
         if 'price' in data:
             product.price = float(data['price'])
         if 'stock' in data:
@@ -78,3 +83,21 @@ def delete_product(id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
+
+@inventory_bp.route('/stats', methods=['GET'])
+@jwt_required()
+def get_stats():
+    total_products = Product.query.count()
+    low_stock = Product.query.filter(Product.stock <= Product.low_stock_threshold).count()
+    out_of_stock = Product.query.filter(Product.stock == 0).count()
+    
+    # Calculate total inventory value as a proxy for "Revenue" for now, 
+    # or just return mock data for sales since we don't have a Sales model yet.
+    # Let's return real inventory stats and mock sales stats.
+    
+    return jsonify({
+        'total_products': total_products,
+        'low_stock': low_stock,
+        'out_of_stock': out_of_stock,
+        'active_products': total_products - out_of_stock
+    }), 200

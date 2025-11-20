@@ -98,27 +98,27 @@ export const authService = {
 // Product Service
 export const productService = {
   getAll: async () => {
-    const response = await apiClient.get('/products')
+    const response = await apiClient.get('/inventory/')
     return response.data
   },
 
   getById: async (id) => {
-    const response = await apiClient.get(`/products/${id}`)
+    const response = await apiClient.get(`/inventory/${id}`)
     return response.data
   },
 
   create: async (productData) => {
-    const response = await apiClient.post('/products', productData)
+    const response = await apiClient.post('/inventory/', productData)
     return response.data
   },
 
   update: async (id, productData) => {
-    const response = await apiClient.put(`/products/${id}`, productData)
+    const response = await apiClient.put(`/inventory/${id}`, productData)
     return response.data
   },
 
   delete: async (id) => {
-    const response = await apiClient.delete(`/products/${id}`)
+    const response = await apiClient.delete(`/inventory/${id}`)
     return response.data
   },
 }
@@ -126,7 +126,7 @@ export const productService = {
 // Category Service
 export const categoryService = {
   getAll: async () => {
-    const response = await apiClient.get('/categories')
+    const response = await apiClient.get('/categories/')
     return response.data
   },
 
@@ -136,7 +136,7 @@ export const categoryService = {
   },
 
   create: async (categoryData) => {
-    const response = await apiClient.post('/categories', categoryData)
+    const response = await apiClient.post('/categories/', categoryData)
     return response.data
   },
 
@@ -147,6 +147,24 @@ export const categoryService = {
 
   delete: async (id) => {
     const response = await apiClient.delete(`/categories/${id}`)
+    return response.data
+  },
+}
+
+// Sale Service
+export const saleService = {
+  getAll: async () => {
+    const response = await apiClient.get('/sales/')
+    return response.data
+  },
+
+  getById: async (id) => {
+    const response = await apiClient.get(`/sales/${id}`)
+    return response.data
+  },
+
+  create: async (saleData) => {
+    const response = await apiClient.post('/sales/', saleData)
     return response.data
   },
 }

@@ -4,6 +4,9 @@ import Home from './pages/Home'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import Inventory from './pages/Inventory'
+import Categories from './pages/Categories'
+import Sales from './pages/Sales'
+import CreateSale from './pages/CreateSale'
 import Layout from './components/layout/Layout'
 import './App.css'
 
@@ -20,6 +23,9 @@ function App() {
           <Route element={<Layout />}>
             <Route path="/" element={<Home />} />
             <Route path="/inventory" element={<Inventory />} />
+            <Route path="/categories" element={<Categories />} />
+            <Route path="/sales" element={<Sales />} />
+            <Route path="/sales/new" element={<CreateSale />} />
           </Route>
 
           {/* Redirect unknown routes to login for now */}

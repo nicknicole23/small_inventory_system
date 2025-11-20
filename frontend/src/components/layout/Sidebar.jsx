@@ -8,6 +8,7 @@ const Sidebar = () => {
     { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
     { icon: Package, label: 'Inventory', path: '/inventory' },
     { icon: Tags, label: 'Categories', path: '/categories' },
+    { icon: ShoppingBag, label: 'Sales', path: '/sales' },
     { icon: BarChart3, label: 'Reports', path: '/reports' },
     { icon: Settings, label: 'Settings', path: '/settings' },
   ];

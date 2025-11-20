@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Search, Filter, MoreHorizontal, Edit, Trash2 } from 'lucide-react';
-import { apiClient } from '../services/api';
+import { apiClient, categoryService } from '../services/api';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/Table';
@@ -9,23 +9,28 @@ import { Dialog } from '../components/ui/Dialog';
 
 const Inventory = () => {
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentProduct, setCurrentProduct] = useState(null); // For editing
 
-  const fetchProducts = async () => {
+  const fetchData = async () => {
     try {
-      const response = await apiClient.get('/inventory/');
-      setProducts(response.data);
+      const [productsRes, categoriesRes] = await Promise.all([
+        apiClient.get('/inventory/'),
+        categoryService.getAll()
+      ]);
+      setProducts(productsRes.data);
+      setCategories(categoriesRes);
     } catch (error) {
-      console.error('Error fetching products:', error);
+      console.error('Error fetching data:', error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchProducts();
+    fetchData();
   }, []);
 
   const handleAddProduct = () => {
@@ -56,7 +61,7 @@ const Inventory = () => {
     const productData = {
       name: formData.get('name'),
       sku: formData.get('sku'),
-      category: formData.get('category'),
+      category_id: formData.get('category_id'),
       price: parseFloat(formData.get('price')),
       stock: parseInt(formData.get('stock')),
     };
@@ -191,16 +196,21 @@ const Inventory = () => {
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <label htmlFor="category" className="text-right text-sm font-medium">
+              <label htmlFor="category_id" className="text-right text-sm font-medium">
                 Category
               </label>
-              <Input
-                id="category"
-                name="category"
-                defaultValue={currentProduct?.category}
-                className="col-span-3"
+              <select
+                id="category_id"
+                name="category_id"
+                defaultValue={currentProduct?.category_id || ''}
+                className="col-span-3 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 required
-              />
+              >
+                <option value="" disabled>Select a category</option>
+                {categories.map(cat => (
+                  <option key={cat.id} value={cat.id}>{cat.name}</option>
+                ))}
+              </select>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <label htmlFor="price" className="text-right text-sm font-medium">

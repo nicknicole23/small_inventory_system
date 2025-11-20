@@ -3,6 +3,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
+from flask_marshmallow import Marshmallow
 from flask_cors import CORS
 from config import config
 
@@ -10,6 +11,7 @@ from config import config
 db = SQLAlchemy()
 jwt = JWTManager()
 migrate = Migrate()
+ma = Marshmallow()
 
 
 def create_app(config_name=None):
@@ -34,6 +36,7 @@ def create_app(config_name=None):
     db.init_app(app)
     jwt.init_app(app)
     migrate.init_app(app, db)
+    ma.init_app(app)
     
     # Enable CORS for frontend communication
     CORS(app, resources={
@@ -47,14 +50,13 @@ def create_app(config_name=None):
     # Register blueprints (routes)
     from routes.auth_routes import auth_bp
     from routes.inventory_routes import inventory_bp
+    from routes.category_routes import category_bp
+    from routes.sale_routes import sale_bp
+    
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(inventory_bp, url_prefix='/api/inventory')
-    
-    # Register more blueprints as they are created
-    # from routes.product_routes import product_bp
-    # from routes.category_routes import category_bp
-    # app.register_blueprint(product_bp, url_prefix='/api/products')
-    # app.register_blueprint(category_bp, url_prefix='/api/categories')
+    app.register_blueprint(category_bp, url_prefix='/api/categories')
+    app.register_blueprint(sale_bp, url_prefix='/api/sales')
     
     # Health check route
     @app.route('/api/health', methods=['GET'])

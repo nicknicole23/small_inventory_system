@@ -6,18 +6,23 @@ import SalesChart from '../components/dashboard/SalesChart'
 import RecentActivity from '../components/dashboard/RecentActivity'
 
 function Home() {
-  // Keep the health check for now, but don't block the UI
+  const [stats, setStats] = useState({
+    active_products: 0,
+    low_stock: 0,
+    total_products: 0
+  });
+
   useEffect(() => {
-    const checkServer = async () => {
+    const fetchStats = async () => {
       try {
-        await apiClient.get('/health')
-        console.log('Server is healthy')
+        const response = await apiClient.get('/inventory/stats');
+        setStats(response.data);
       } catch (error) {
-        console.error('Error connecting to server:', error)
+        console.error('Error fetching stats:', error);
       }
-    }
-    checkServer()
-  }, [])
+    };
+    fetchStats();
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -45,7 +50,7 @@ function Home() {
         />
         <StatCard
           title="Active Products"
-          value="12,234"
+          value={stats.active_products.toString()}
           trend="+19%"
           trendUp={true}
           description="from last month"
@@ -53,7 +58,7 @@ function Home() {
         />
         <StatCard
           title="Low Stock Items"
-          value="7"
+          value={stats.low_stock.toString()}
           trend="-4"
           trendUp={false}
           description="since last hour"
