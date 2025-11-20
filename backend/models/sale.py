@@ -38,11 +38,23 @@ class SaleItem(db.Model):
     product = db.relationship('Product')
 
     def to_dict(self):
+        product_dict = None
+        if self.product:
+            product_dict = {
+                'id': self.product.id,
+                'name': self.product.name,
+                'category': {
+                    'id': self.product.category.id,
+                    'name': self.product.category.name
+                } if self.product.category else None
+            }
+        
         return {
             'id': self.id,
             'product_name': self.product.name if self.product else "Unknown Product",
+            'product': product_dict,
             'quantity': self.quantity,
-            'price': self.price_at_sale,
+            'price_at_sale': self.price_at_sale,
             'subtotal': self.quantity * self.price_at_sale
         }
 

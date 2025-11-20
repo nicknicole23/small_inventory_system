@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { BarChart3, TrendingUp, DollarSign, Package, Calendar } from 'lucide-react';
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { apiClient } from '../services/api';
 
 const Reports = () => {
   const [loading, setLoading] = useState(true);
-  const [dateRange, setDateRange] = useState('week'); // week, month, year
+  const [dateRange, setDateRange] = useState('month'); // week, month, year
   const [salesData, setSalesData] = useState([]);
   const [stats, setStats] = useState({
     totalRevenue: 0,
@@ -16,6 +17,10 @@ const Reports = () => {
     avgOrderTrend: null,
     topProducts: []
   });
+  const [salesChartData, setSalesChartData] = useState([]);
+  const [categoriesData, setCategoriesData] = useState([]);
+
+  const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
 
   useEffect(() => {
     fetchReportsData();
@@ -109,6 +114,61 @@ const Reports = () => {
         avgOrderTrend,
         topProducts: []
       });
+
+      // Prepare chart data for Sales Trend
+      const salesByDate = {};
+      currentSales.forEach(sale => {
+        const saleDate = new Date(sale.created_at);
+        // Create a sortable key (YYYY-MM-DD)
+        const dateKey = saleDate.toISOString().split('T')[0];
+        // Create display date (Nov 15)
+        const displayDate = saleDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        
+        if (!salesByDate[dateKey]) {
+          salesByDate[dateKey] = { 
+            dateKey, 
+            date: displayDate, 
+            revenue: 0, 
+            sales: 0 
+          };
+        }
+        salesByDate[dateKey].revenue += parseFloat(sale.total_amount || 0);
+        salesByDate[dateKey].sales += 1;
+      });
+      
+      // Sort by dateKey and use display date
+      const chartData = Object.values(salesByDate)
+        .sort((a, b) => a.dateKey.localeCompare(b.dateKey))
+        .map(({ date, revenue, sales }) => ({ date, revenue, sales }));
+      
+      setSalesChartData(chartData);
+
+      // Fetch categories data and calculate top categories
+      const categoriesResponse = await apiClient.get('/categories/');
+      const categories = categoriesResponse.data;
+      
+      // Calculate sales per category
+      const categoryStats = {};
+      currentSales.forEach(sale => {
+        if (sale.items && Array.isArray(sale.items)) {
+          sale.items.forEach(item => {
+            if (item.product && item.product.category) {
+              const catName = item.product.category.name;
+              if (!categoryStats[catName]) {
+                categoryStats[catName] = { name: catName, value: 0, sales: 0 };
+              }
+              categoryStats[catName].value += parseFloat(item.price_at_sale || 0) * item.quantity;
+              categoryStats[catName].sales += item.quantity;
+            }
+          });
+        }
+      });
+
+      const topCategories = Object.values(categoryStats)
+        .sort((a, b) => b.value - a.value)
+        .slice(0, 6);
+      setCategoriesData(topCategories);
+
     } catch (error) {
       console.error('Failed to fetch reports data:', error);
     } finally {
@@ -252,20 +312,132 @@ const Reports = () => {
         </div>
       </div>
 
-      {/* Charts Section - Placeholder */}
+      {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Sales Trend</h3>
-          <div className="flex items-center justify-center h-64 bg-gray-50 dark:bg-gray-700 rounded">
-            <p className="text-gray-500 dark:text-gray-400">Chart visualization coming soon</p>
-          </div>
+          {salesChartData.length > 0 ? (
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={salesChartData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.1} />
+                <XAxis 
+                  dataKey="date" 
+                  stroke="#6b7280"
+                  style={{ fontSize: '12px' }}
+                />
+                <YAxis 
+                  yAxisId="left"
+                  stroke="#6b7280"
+                  style={{ fontSize: '12px' }}
+                  tickFormatter={(value) => `Ksh ${value.toFixed(0)}`}
+                  label={{ value: 'Revenue (Ksh)', angle: -90, position: 'insideLeft', style: { fontSize: '12px' } }}
+                />
+                <YAxis 
+                  yAxisId="right"
+                  orientation="right"
+                  stroke="#6b7280"
+                  style={{ fontSize: '12px' }}
+                  label={{ value: 'Sales Count', angle: 90, position: 'insideRight', style: { fontSize: '12px' } }}
+                />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: 'rgba(17, 24, 39, 0.9)',
+                    border: 'none',
+                    borderRadius: '8px',
+                    color: '#fff'
+                  }}
+                  formatter={(value, name) => {
+                    if (name === 'Revenue') return [`Ksh ${parseFloat(value).toFixed(2)}`, 'Revenue'];
+                    return [Math.round(value), 'Sales Count'];
+                  }}
+                />
+                <Legend />
+                <Line 
+                  yAxisId="left"
+                  type="monotone" 
+                  dataKey="revenue" 
+                  stroke="#3b82f6" 
+                  strokeWidth={2}
+                  name="Revenue"
+                  dot={{ fill: '#3b82f6', r: 4 }}
+                  activeDot={{ r: 6 }}
+                />
+                <Line 
+                  yAxisId="right"
+                  type="monotone" 
+                  dataKey="sales" 
+                  stroke="#10b981" 
+                  strokeWidth={2}
+                  name="Sales Count"
+                  dot={{ fill: '#10b981', r: 4 }}
+                  activeDot={{ r: 6 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="flex items-center justify-center h-64">
+              <p className="text-gray-500 dark:text-gray-400">No sales data available</p>
+            </div>
+          )}
         </div>
         
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Top Categories</h3>
-          <div className="flex items-center justify-center h-64 bg-gray-50 dark:bg-gray-700 rounded">
-            <p className="text-gray-500 dark:text-gray-400">Chart visualization coming soon</p>
-          </div>
+          {categoriesData.length > 0 ? (
+            <div className="flex flex-col lg:flex-row items-center gap-4">
+              <ResponsiveContainer width="50%" height={250}>
+                <PieChart>
+                  <Pie
+                    data={categoriesData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {categoriesData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'rgba(17, 24, 39, 0.9)',
+                      border: 'none',
+                      borderRadius: '8px',
+                      color: '#fff'
+                    }}
+                    formatter={(value) => `Ksh ${value.toFixed(2)}`}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="flex-1 w-full">
+                {categoriesData.map((category, index) => (
+                  <div key={category.name} className="flex items-center justify-between py-2">
+                    <div className="flex items-center gap-2">
+                      <div 
+                        className="w-3 h-3 rounded-full" 
+                        style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                      />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">{category.name}</span>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                        Ksh {category.value.toFixed(2)}
+                      </div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">
+                        {category.sales} units
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center justify-center h-64">
+              <p className="text-gray-500 dark:text-gray-400">No category data available</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
