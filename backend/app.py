@@ -1,17 +1,11 @@
 import os
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
-from flask_marshmallow import Marshmallow
-from flask_cors import CORS
 from config import config
+from extensions import db, jwt, ma, cors
 
-# Initialize extensions
-db = SQLAlchemy()
-jwt = JWTManager()
+# Initialize migrate separately
 migrate = Migrate()
-ma = Marshmallow()
 
 
 def create_app(config_name=None):
@@ -39,9 +33,9 @@ def create_app(config_name=None):
     ma.init_app(app)
     
     # Enable CORS for frontend communication
-    CORS(app, resources={
+    cors.init_app(app, resources={
         r"/api/*": {
-            "origins": ["http://localhost:5173", "http://localhost:3000"],
+            "origins": ["http://localhost:5173", "http://localhost:3000", "http://localhost:5174"],
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
             "allow_headers": ["Content-Type", "Authorization"]
         }

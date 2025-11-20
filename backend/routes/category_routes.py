@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required
-from app import db
+from extensions import db
 from models.category import Category, category_schema, categories_schema
 from sqlalchemy.exc import IntegrityError
 

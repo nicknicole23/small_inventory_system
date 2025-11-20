@@ -1,17 +1,10 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
     jwt_required,
     get_jwt_identity,
     get_jwt
-)
-from app import db
-from models.user import (
-    User,
-    user_schema,
-    user_registration_schema,
-    user_login_schema
 )
 from marshmallow import ValidationError
 from sqlalchemy.exc import IntegrityError
@@ -40,6 +33,10 @@ def register():
         400: Validation error or user already exists
         500: Server error
     """
+    # Import inside function to avoid circular imports
+    from extensions import db
+    from models.user import User, user_registration_schema, user_schema
+    
     try:
         # Get JSON data from request
         data = request.get_json()
@@ -113,6 +110,9 @@ def login():
         403: Account inactive
         500: Server error
     """
+    # Import inside function to avoid circular imports
+    from models.user import User, user_schema, user_login_schema
+    
     try:
         # Get JSON data from request
         data = request.get_json()
@@ -165,6 +165,8 @@ def login():
         }), 200
         
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         return jsonify({'error': 'An error occurred during login', 'message': str(e)}), 500
 
 
@@ -181,6 +183,9 @@ def refresh():
         200: New access token
         401: Invalid or expired refresh token
     """
+    # Import inside function to avoid circular imports
+    from models.user import User
+    
     try:
         # Get current user identity from refresh token
         current_user_id = get_jwt_identity()
@@ -251,6 +256,9 @@ def get_current_user():
         401: Unauthorized
         404: User not found
     """
+    # Import inside function to avoid circular imports
+    from models.user import User, user_schema
+    
     try:
         # Get current user ID from JWT
         current_user_id = get_jwt_identity()
@@ -310,6 +318,10 @@ def change_password():
         
         if len(new_password) < 6:
             return jsonify({'error': 'New password must be at least 6 characters long'}), 400
+        
+        # Import inside function to avoid circular imports
+        from extensions import db
+        from models.user import User
         
         # Get user from database
         user = User.query.get(current_user_id)

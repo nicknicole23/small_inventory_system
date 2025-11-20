@@ -1,5 +1,5 @@
 from datetime import datetime
-from app import db
+from extensions import db, ma
 from werkzeug.security import generate_password_hash, check_password_hash
 from marshmallow import Schema, fields, validate, validates, ValidationError
 
