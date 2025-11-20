@@ -87,17 +87,59 @@ def delete_product(id):
 @inventory_bp.route('/stats', methods=['GET'])
 @jwt_required()
 def get_stats():
+    from models.sale import Sale, SaleItem
+    from datetime import datetime, timedelta
+    
     total_products = Product.query.count()
     low_stock = Product.query.filter(Product.stock <= Product.low_stock_threshold).count()
     out_of_stock = Product.query.filter(Product.stock == 0).count()
     
-    # Calculate total inventory value as a proxy for "Revenue" for now, 
-    # or just return mock data for sales since we don't have a Sales model yet.
-    # Let's return real inventory stats and mock sales stats.
+    # Calculate real sales statistics
+    now = datetime.utcnow()
+    current_month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    last_month_start = (current_month_start - timedelta(days=1)).replace(day=1)
+    
+    # Current month sales
+    current_month_sales = Sale.query.filter(Sale.created_at >= current_month_start).all()
+    current_revenue = sum(float(sale.total_amount) for sale in current_month_sales)
+    
+    # Calculate units sold (sum of all sale item quantities)
+    current_units = db.session.query(db.func.sum(SaleItem.quantity)).join(Sale).filter(
+        Sale.created_at >= current_month_start
+    ).scalar() or 0
+    
+    # Previous month sales
+    prev_month_sales = Sale.query.filter(
+        Sale.created_at >= last_month_start,
+        Sale.created_at < current_month_start
+    ).all()
+    prev_revenue = sum(float(sale.total_amount) for sale in prev_month_sales)
+    
+    prev_units = db.session.query(db.func.sum(SaleItem.quantity)).join(Sale).filter(
+        Sale.created_at >= last_month_start,
+        Sale.created_at < current_month_start
+    ).scalar() or 0
+    
+    # Calculate trends
+    revenue_trend = 0
+    if prev_revenue > 0:
+        revenue_trend = ((current_revenue - prev_revenue) / prev_revenue) * 100
+    elif current_revenue > 0:
+        revenue_trend = 100
+        
+    units_trend = 0
+    if prev_units > 0:
+        units_trend = ((current_units - prev_units) / prev_units) * 100
+    elif current_units > 0:
+        units_trend = 100
     
     return jsonify({
         'total_products': total_products,
         'low_stock': low_stock,
         'out_of_stock': out_of_stock,
-        'active_products': total_products - out_of_stock
+        'active_products': total_products - out_of_stock,
+        'total_revenue': current_revenue,
+        'revenue_trend': revenue_trend,
+        'units_sold': int(current_units),
+        'units_trend': units_trend
     }), 200

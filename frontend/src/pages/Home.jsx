@@ -9,7 +9,11 @@ function Home() {
   const [stats, setStats] = useState({
     active_products: 0,
     low_stock: 0,
-    total_products: 0
+    total_products: 0,
+    total_revenue: 0,
+    revenue_trend: 0,
+    units_sold: 0,
+    units_trend: 0
   });
 
   useEffect(() => {
@@ -34,17 +38,17 @@ function Home() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Total Revenue"
-          value="$45,231.89"
-          trend="+20.1%"
-          trendUp={true}
+          value={`$${stats.total_revenue.toFixed(2)}`}
+          trend={`${stats.revenue_trend >= 0 ? '+' : ''}${stats.revenue_trend.toFixed(1)}%`}
+          trendUp={stats.revenue_trend >= 0}
           description="from last month"
           icon={DollarSign}
         />
         <StatCard
           title="Units Sold"
-          value="+2350"
-          trend="+180.1%"
-          trendUp={true}
+          value={`+${stats.units_sold}`}
+          trend={`${stats.units_trend >= 0 ? '+' : ''}${stats.units_trend.toFixed(1)}%`}
+          trendUp={stats.units_trend >= 0}
           description="from last month"
           icon={ShoppingBag}
         />

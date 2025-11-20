@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
+import { ThemeProvider } from './context/ThemeContext'
 import Home from './pages/Home'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
@@ -8,13 +9,15 @@ import Categories from './pages/Categories'
 import Sales from './pages/Sales'
 import CreateSale from './pages/CreateSale'
 import Reports from './pages/Reports'
+import Settings from './pages/Settings'
 import Layout from './components/layout/Layout'
 import './App.css'
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
+    <ThemeProvider>
+      <AuthProvider>
+        <Router>
         <Routes>
           {/* Public Routes */}
           <Route path="/login" element={<LoginPage />} />
@@ -28,13 +31,15 @@ function App() {
             <Route path="/sales" element={<Sales />} />
             <Route path="/sales/new" element={<CreateSale />} />
             <Route path="/reports" element={<Reports />} />
+            <Route path="/settings" element={<Settings />} />
           </Route>
 
           {/* Redirect unknown routes to login for now */}
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
-      </Router>
-    </AuthProvider>
+        </Router>
+      </AuthProvider>
+    </ThemeProvider>
   )
 }
 

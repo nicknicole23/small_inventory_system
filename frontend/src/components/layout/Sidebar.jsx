@@ -14,9 +14,9 @@ const Sidebar = () => {
   ];
 
   return (
-    <aside className="hidden w-64 flex-col border-r border-gray-200 bg-white md:flex">
-      <div className="flex h-16 items-center border-b border-gray-200 px-6">
-        <div className="flex items-center gap-2 font-bold text-xl text-gray-900">
+    <aside className="hidden w-64 flex-col border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 md:flex">
+      <div className="flex h-16 items-center border-b border-gray-200 dark:border-gray-700 px-6">
+        <div className="flex items-center gap-2 font-bold text-xl text-gray-900 dark:text-white">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white">
             <ShoppingBag className="h-5 w-5" />
           </div>
@@ -33,8 +33,8 @@ const Sidebar = () => {
                 cn(
                   "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                   isActive
-                    ? "bg-blue-50 text-blue-600"
-                    : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                    ? "bg-blue-50 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400"
+                    : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white"
                 )
               }
             >
@@ -44,16 +44,16 @@ const Sidebar = () => {
           ))}
         </nav>
       </div>
-      <div className="border-t border-gray-200 p-4">
-        <div className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 cursor-pointer">
-          <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
-             <span className="text-xs font-medium">JD</span>
+      <div className="border-t border-gray-200 dark:border-gray-700 p-4">
+        <div className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
+          <div className="h-8 w-8 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center">
+             <span className="text-xs font-medium dark:text-white">JD</span>
           </div>
           <div className="flex-1 overflow-hidden">
-            <p className="truncate font-medium text-gray-900">John Doe</p>
-            <p className="truncate text-xs text-gray-500">john@example.com</p>
+            <p className="truncate font-medium text-gray-900 dark:text-white">John Doe</p>
+            <p className="truncate text-xs text-gray-500 dark:text-gray-400">john@example.com</p>
           </div>
-          <LogOut className="h-4 w-4 text-gray-500" />
+          <LogOut className="h-4 w-4 text-gray-500 dark:text-gray-400" />
         </div>
       </div>
     </aside>
