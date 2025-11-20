@@ -173,7 +173,7 @@ const Reports = () => {
         <StatCard
           icon={DollarSign}
           title="Total Revenue"
-          value={`$${stats.totalRevenue.toFixed(2)}`}
+          value={`Ksh ${stats.totalRevenue.toFixed(2)}`}
           trend={stats.revenueTrend}
           color="bg-green-500"
         />
@@ -187,7 +187,7 @@ const Reports = () => {
         <StatCard
           icon={TrendingUp}
           title="Average Order Value"
-          value={`$${stats.averageOrderValue.toFixed(2)}`}
+          value={`Ksh ${stats.averageOrderValue.toFixed(2)}`}
           trend={stats.avgOrderTrend}
           color="bg-purple-500"
         />
@@ -236,7 +236,7 @@ const Reports = () => {
                       {new Date(sale.created_at).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                      ${parseFloat(sale.total_amount).toFixed(2)}
+                      Ksh {parseFloat(sale.total_amount).toFixed(2)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
                       <span className="capitalize">{sale.payment_method}</span>

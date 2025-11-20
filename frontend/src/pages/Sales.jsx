@@ -82,7 +82,7 @@ export default function Sales() {
                   {sale.items.length} items
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  ${sale.total_amount.toFixed(2)}
+                  Ksh {sale.total_amount.toFixed(2)}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 capitalize">
                   {sale.payment_method}

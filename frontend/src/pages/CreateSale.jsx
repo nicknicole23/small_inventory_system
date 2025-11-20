@@ -128,7 +128,7 @@ export default function CreateSale() {
               <div className="font-semibold text-gray-800">{product.name}</div>
               <div className="text-sm text-gray-500 mb-2">{product.sku}</div>
               <div className="flex justify-between items-center">
-                <span className="font-bold text-blue-600">${product.price}</span>
+                <span className="font-bold text-blue-600">Ksh {product.price}</span>
                 <span className={`text-xs px-2 py-1 rounded ${
                   product.stock > 10 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                 }`}>
@@ -160,7 +160,7 @@ export default function CreateSale() {
                 <div key={item.product_id} className="flex justify-between items-center">
                   <div className="flex-1">
                     <div className="font-medium">{item.name}</div>
-                    <div className="text-sm text-gray-500">${item.price} x {item.quantity}</div>
+                    <div className="text-sm text-gray-500">Ksh {item.price} x {item.quantity}</div>
                   </div>
                   <div className="flex items-center gap-2">
                     <button 
@@ -192,7 +192,7 @@ export default function CreateSale() {
         <div className="p-4 border-t bg-gray-50 rounded-b-lg">
           <div className="flex justify-between items-center mb-4 text-xl font-bold">
             <span>Total:</span>
-            <span>${calculateTotal().toFixed(2)}</span>
+            <span>Ksh {calculateTotal().toFixed(2)}</span>
           </div>
           
           {error && (

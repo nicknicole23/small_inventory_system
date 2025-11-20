@@ -40,7 +40,7 @@ const SalesChart = () => {
                 fontSize={12}
                 tickLine={false}
                 axisLine={false}
-                tickFormatter={(value) => `$${value}`}
+                tickFormatter={(value) => `Ksh ${value}`}
               />
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
               <Tooltip 

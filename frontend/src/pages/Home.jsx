@@ -38,7 +38,7 @@ function Home() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Total Revenue"
-          value={`$${stats.total_revenue.toFixed(2)}`}
+          value={`Ksh ${stats.total_revenue.toFixed(2)}`}
           trend={`${stats.revenue_trend >= 0 ? '+' : ''}${stats.revenue_trend.toFixed(1)}%`}
           trendUp={stats.revenue_trend >= 0}
           description="from last month"
