@@ -17,7 +17,7 @@ def get_sales():
 @sale_bp.route('/', methods=['POST'])
 @jwt_required()
 def create_sale():
-    current_user_id = get_jwt_identity()
+    current_user_id = int(get_jwt_identity())
     data = request.get_json()
     
     if not data.get('items'):

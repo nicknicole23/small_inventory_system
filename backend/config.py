@@ -1,6 +1,9 @@
 import os
 from datetime import timedelta
 
+# Get the base directory of the application
+basedir = os.path.abspath(os.path.dirname(__file__))
+
 
 class Config:
     """Base configuration class with common settings."""
@@ -15,7 +18,7 @@ class DevelopmentConfig(Config):
     """Development configuration using SQLite."""
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
-        'sqlite:///inventory_dev.db'
+        f'sqlite:///{os.path.join(basedir, "instance", "inventory.db")}'
     SQLALCHEMY_ECHO = True  # Log SQL queries for debugging
 
 

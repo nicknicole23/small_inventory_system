@@ -148,11 +148,11 @@ def login():
         }
         
         access_token = create_access_token(
-            identity=user.id,
+            identity=str(user.id),
             additional_claims=additional_claims
         )
         refresh_token = create_refresh_token(
-            identity=user.id,
+            identity=str(user.id),
             additional_claims=additional_claims
         )
         
@@ -191,7 +191,7 @@ def refresh():
         current_user_id = get_jwt_identity()
         
         # Get user from database to ensure they still exist and are active
-        user = User.query.get(current_user_id)
+        user = User.query.get(int(current_user_id))
         
         if not user:
             return jsonify({'error': 'User not found'}), 401
@@ -206,7 +206,7 @@ def refresh():
         }
         
         access_token = create_access_token(
-            identity=user.id,
+            identity=str(user.id),
             additional_claims=additional_claims
         )
         
@@ -264,7 +264,7 @@ def get_current_user():
         current_user_id = get_jwt_identity()
         
         # Get user from database
-        user = User.query.get(current_user_id)
+        user = User.query.get(int(current_user_id))
         
         if not user:
             return jsonify({'error': 'User not found'}), 404
@@ -302,7 +302,7 @@ def change_password():
     """
     try:
         # Get current user ID from JWT
-        current_user_id = get_jwt_identity()
+        current_user_id = int(get_jwt_identity())
         
         # Get JSON data
         data = request.get_json()

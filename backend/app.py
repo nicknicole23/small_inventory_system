@@ -58,6 +58,23 @@ def create_app(config_name=None):
     app.register_blueprint(category_bp, url_prefix='/api/categories')
     app.register_blueprint(sale_bp, url_prefix='/api/sales')
     
+    # JWT error handlers
+    @jwt.invalid_token_loader
+    def invalid_token_callback(error):
+        return {'error': 'Invalid token', 'message': str(error)}, 422
+    
+    @jwt.unauthorized_loader
+    def unauthorized_callback(error):
+        return {'error': 'Missing authorization header', 'message': str(error)}, 401
+    
+    @jwt.expired_token_loader
+    def expired_token_callback(jwt_header, jwt_data):
+        return {'error': 'Token has expired', 'message': 'Please log in again'}, 401
+    
+    @jwt.revoked_token_loader
+    def revoked_token_callback(jwt_header, jwt_data):
+        return {'error': 'Token has been revoked', 'message': 'Please log in again'}, 401
+    
     # Health check route
     @app.route('/api/health', methods=['GET'])
     def health_check():
