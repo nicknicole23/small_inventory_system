@@ -36,8 +36,8 @@ def create_sale():
             if not product:
                 return jsonify({'error': f'Product {product_id} not found'}), 404
                 
-            if product.stock_quantity < quantity:
-                return jsonify({'error': f'Insufficient stock for {product.name}. Available: {product.stock_quantity}'}), 400
+            if product.stock < quantity:
+                return jsonify({'error': f'Insufficient stock for {product.name}. Available: {product.stock}'}), 400
                 
             item_total = product.price * quantity
             total_amount += item_total
@@ -72,7 +72,7 @@ def create_sale():
             db.session.add(sale_item)
             
             # Update Stock
-            product.stock_quantity -= quantity
+            product.stock -= quantity
             
         db.session.commit()
         return jsonify(new_sale.to_dict()), 201
