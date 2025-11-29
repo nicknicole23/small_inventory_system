@@ -61,7 +61,7 @@ export default function Settings() {
     }
 
     try {
-      await apiClient.post('/auth/change-password', {
+      await apiClient.put('/auth/change-password', {
         current_password: passwordData.current_password,
         new_password: passwordData.new_password,
       });

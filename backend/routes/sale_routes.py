@@ -106,9 +106,12 @@ def generate_sample_data():
         
         import random
         from datetime import timedelta
+        import pytz
         
         sales_created = 0
-        today = datetime.utcnow()
+        # Use EAT timezone
+        eat = pytz.timezone('Africa/Nairobi')
+        today = datetime.now(eat)
         
         # Generate 15 sample sales over the past 30 days
         for i in range(15):

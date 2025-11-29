@@ -344,6 +344,85 @@ def change_password():
         return jsonify({'error': 'An error occurred', 'message': str(e)}), 500
 
 
+@auth_bp.route('/profile', methods=['PUT'])
+@jwt_required()
+def update_profile():
+    """
+    Update user profile information.
+    
+    Expected JSON:
+        {
+            "username": "new_username",
+            "email": "new_email@example.com",
+            "first_name": "FirstName",
+            "last_name": "LastName"
+        }
+    
+    Headers:
+        Authorization: Bearer <access_token>
+    
+    Returns:
+        200: Profile updated successfully
+        400: Validation error or duplicate username/email
+        404: User not found
+    """
+    try:
+        # Get current user ID from JWT
+        current_user_id = int(get_jwt_identity())
+        
+        # Get JSON data
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+        
+        # Import inside function to avoid circular imports
+        from extensions import db
+        from models.user import User, user_schema
+        
+        # Get user from database
+        user = User.query.get(current_user_id)
+        
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+        
+        # Check if username is being changed and if it's already taken
+        if 'username' in data and data['username'] != user.username:
+            existing_user = User.query.filter_by(username=data['username']).first()
+            if existing_user:
+                return jsonify({'error': 'Username already exists'}), 400
+            user.username = data['username']
+        
+        # Check if email is being changed and if it's already taken
+        if 'email' in data and data['email'] != user.email:
+            existing_user = User.query.filter_by(email=data['email']).first()
+            if existing_user:
+                return jsonify({'error': 'Email already exists'}), 400
+            user.email = data['email']
+        
+        # Update other fields
+        if 'first_name' in data:
+            user.first_name = data['first_name']
+        
+        if 'last_name' in data:
+            user.last_name = data['last_name']
+        
+        # Save changes
+        db.session.commit()
+        
+        return jsonify({
+            'message': 'Profile updated successfully',
+            'user': user_schema.dump(user)
+        }), 200
+        
+    except IntegrityError:
+        db.session.rollback()
+        return jsonify({'error': 'Username or email already exists'}), 400
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': 'An error occurred', 'message': str(e)}), 500
+
+
 # Error handlers for JWT
 @auth_bp.errorhandler(401)
 def unauthorized(error):

@@ -121,6 +121,11 @@ export const productService = {
     const response = await apiClient.delete(`/inventory/${id}`)
     return response.data
   },
+
+  getRecentActivity: async () => {
+    const response = await apiClient.get('/inventory/recent-activity')
+    return response.data
+  },
 }
 
 // Category Service

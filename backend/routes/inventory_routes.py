@@ -87,15 +87,15 @@ def delete_product(id):
 @inventory_bp.route('/stats', methods=['GET'])
 @jwt_required()
 def get_stats():
-    from models.sale import Sale, SaleItem
+    from models.sale import Sale, SaleItem, get_eat_now
     from datetime import datetime, timedelta
     
     total_products = Product.query.count()
     low_stock = Product.query.filter(Product.stock <= Product.low_stock_threshold).count()
     out_of_stock = Product.query.filter(Product.stock == 0).count()
     
-    # Calculate real sales statistics
-    now = datetime.utcnow()
+    # Calculate real sales statistics using EAT
+    now = get_eat_now()
     current_month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
     last_month_start = (current_month_start - timedelta(days=1)).replace(day=1)
     
@@ -143,3 +143,64 @@ def get_stats():
         'units_sold': int(current_units),
         'units_trend': units_trend
     }), 200
+
+@inventory_bp.route('/recent-activity', methods=['GET'])
+@jwt_required()
+def get_recent_activity():
+    """Get recent activity including sales and low stock alerts"""
+    from models.sale import Sale, SaleItem, get_eat_now, EAT
+    from datetime import datetime, timedelta
+    import pytz
+    
+    activities = []
+    
+    # Get recent sales (last 10)
+    recent_sales = Sale.query.order_by(Sale.created_at.desc()).limit(10).all()
+    for sale in recent_sales:
+        # Handle both timezone-aware and naive datetimes
+        sale_time = sale.created_at
+        if sale_time:
+            # If naive (old data), assume it's UTC and convert to EAT
+            if sale_time.tzinfo is None:
+                sale_time = pytz.utc.localize(sale_time).astimezone(EAT)
+            # If already aware, ensure it's in EAT
+            elif sale_time.tzinfo != EAT:
+                sale_time = sale_time.astimezone(EAT)
+                
+        activities.append({
+            'id': f'sale-{sale.id}',
+            'type': 'sale',
+            'message': f'New order #{sale.id} from {sale.user.first_name} {sale.user.last_name[0]}.',
+            'time': sale_time.isoformat() if sale_time else None,
+            'created_at': sale_time
+        })
+    
+    # Get recent restocks (products updated in last 7 days with stock increase)
+    # For now, we'll skip this as we don't track stock history yet
+    
+    # Get low stock alerts
+    low_stock_products = Product.query.filter(
+        Product.stock > 0,
+        Product.stock <= Product.low_stock_threshold
+    ).order_by(Product.stock.asc()).limit(5).all()
+    
+    current_time = get_eat_now()
+    for product in low_stock_products:
+        activities.append({
+            'id': f'alert-{product.id}',
+            'type': 'alert',
+            'message': f'Low stock alert: "{product.name}"',
+            'time': current_time.isoformat(),
+            'created_at': current_time
+        })
+    
+    # Sort all activities by time and limit to 10
+    # Convert all to timestamps for consistent comparison
+    activities.sort(key=lambda x: x['created_at'].timestamp() if x['created_at'] else 0, reverse=True)
+    activities = activities[:10]
+    
+    # Remove created_at from response (used only for sorting)
+    for activity in activities:
+        del activity['created_at']
+    
+    return jsonify(activities), 200

@@ -8,3 +8,4 @@ pymysql==1.1.0
 python-dotenv==1.0.0
 flask-cors==4.0.0
 flask-marshmallow==1.1.0
+pytz==2024.1
