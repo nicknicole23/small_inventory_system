@@ -55,17 +55,17 @@ function Home() {
         <StatCard
           title="Active Products"
           value={stats.active_products.toString()}
-          trend="+19%"
+          trend=""
           trendUp={true}
-          description="from last month"
+          description={`${stats.total_products} total products`}
           icon={Package}
         />
         <StatCard
           title="Low Stock Items"
           value={stats.low_stock.toString()}
-          trend="-4"
+          trend=""
           trendUp={false}
-          description="since last hour"
+          description="needs attention"
           icon={Activity}
         />
       </div>
